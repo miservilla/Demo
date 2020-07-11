@@ -1,8 +1,7 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -32,6 +31,7 @@ public class DominoMain extends Application {
     int columnIndex;
     boolean dragging;
     boolean rotating = false;
+    int m = 0;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -90,9 +90,9 @@ public class DominoMain extends Application {
         }
 
         Collections.shuffle(tiles);
-        for (int i = 0; i < 7; i++) {
+        for (m = 0; m < 7; m++) {
             GridPane.setHalignment(tiles.get(0), HPos.CENTER);
-            humanHand.add(tiles.remove(0), i, 0);
+            humanHand.add(tiles.remove(0), m, 0);
         }
 
         for (int i = 0; i < 7; i++) {
@@ -111,8 +111,21 @@ public class DominoMain extends Application {
             boneyard.add(imageView, i, 0);
         }
 
+        rotate.setOnMouseClicked(event -> {
+            rotate.setStyle("-fx-background-color: crimson");
+            rotating = true;
+
+        });
+
 
         humanHand.setOnDragDetected(event -> {
+            System.out.println(rotating);
+            if (rotating) {
+                rotate.setStyle("-fx-background-color: lightgray");
+                System.out.println("I am rotating");
+                humanHand.setRotate(180);
+                rotating = false;
+            }
             Dragboard db = humanHand.startDragAndDrop(TransferMode.COPY_OR_MOVE);
             content.putImage(clickedImage);
             db.setContent(content);
@@ -120,44 +133,42 @@ public class DominoMain extends Application {
             dragging = true;
             System.out.println(imageString[0]);
             humanHand.getChildren().remove(clickedImageView);
-            if (rotating) {
-                rotate.setStyle("-fx-background-color: lightgray");
-                humanHand.setRotate(180);
-                rotating = false;
-            }
 
             event.consume();
         });
 
         topTile.setOnMouseEntered(event -> {
-            System.out.println(topTile.getChildren().get(columnIndex));
-            System.out.println("colIndex is " + columnIndex);
+//            System.out.println(topTile.getChildren().get(columnIndex));
+//            System.out.println("colIndex is " + columnIndex);
             if (dragging) {
                 topTile.add(clickedImageView, columnIndex, 0);
             }
             dragging = false;
+            humanHand.setRotate(0);
         });
 
         bottomTile.setOnMouseEntered(event -> {
-            System.out.println(bottomTile.getChildren().get(columnIndex));
-            System.out.println("colIndex is " + columnIndex);
+//            System.out.println(bottomTile.getChildren().get(columnIndex));
+//            System.out.println("colIndex is " + columnIndex);
             if (dragging) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
             }
             dragging = false;
+            humanHand.setRotate(0);
         });
 
         drawCard.setOnMousePressed(event -> {
             drawCard.setStyle("-fx-background-color: crimson");
             drawCard.setOnMouseReleased(event1 ->
                     drawCard.setStyle("-fx-background-color: lightgray"));
+            if (boneyardList.size() > 0) {
+                humanHand.add(boneyardList.remove(0), m++,
+                        0);
+                boneyard.getChildren().remove(0);
+            }
         });
 
-        rotate.setOnMouseClicked(event -> {
-            rotate.setStyle("-fx-background-color: crimson");
-            rotating = true;
-
-        });
+        quit.setOnMouseClicked(event -> Platform.exit());
 
         humanHand.setAlignment(Pos.BOTTOM_CENTER);
         AnchorPane.setBottomAnchor(humanHand, 263.0);
@@ -208,7 +219,7 @@ public class DominoMain extends Application {
                 humanHandLabel, computerHand, computerHandLabel, boneyard,
                 boneyardLabel, buttonGroup);
 
-        primaryStage.setScene(new Scene(root, 800, 410));
+        primaryStage.setScene(new Scene(root, 1100, 410));
         primaryStage.show();
     }
 
@@ -241,7 +252,7 @@ public class DominoMain extends Application {
     private void addPane(int colIndex, int rowIndex, GridPane grid) {
         Pane pane = new Pane();
         pane.setOnDragEntered(event -> {
-            System.out.printf("Mouse entered cell [%d, %d]%n", colIndex, rowIndex);
+//            System.out.printf("Mouse entered cell [%d, %d]%n", colIndex, rowIndex);
             columnIndex = colIndex;
         });
         grid.add(pane, colIndex, rowIndex);
