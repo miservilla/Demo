@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -44,7 +45,7 @@ public class DominoMain extends Application {
         computerHandLabel.setFont(Font.font(24));
         Label boneyardLabel = new Label("Boneyard");
         boneyardLabel.setFont(Font.font(24));
-        Button rotateButton = new Button("Rotate");
+        ToggleButton rotateButton = new ToggleButton("Rotate");
         rotateButton.setFont(Font.font(24));
         rotateButton.setStyle("-fx-background-color: lightgray");
         Button drawCard = new Button("Draw Card");
@@ -110,9 +111,15 @@ public class DominoMain extends Application {
             boneyard.add(imageView, i, 0);
         }
 
-        rotateButton.setOnMouseClicked(event -> {
-            rotateButton.setStyle("-fx-background-color: crimson");
-            rotating = true;
+        rotateButton.setOnAction(event -> {
+            if (rotateButton.isSelected()) {
+                rotateButton.setStyle("-fx-background-color: crimson");
+                rotating = true;
+            }
+            else {
+                rotating = false;
+                rotateButton.setStyle("-fx-background-color: lightgrey");
+            }
         });
 
 
