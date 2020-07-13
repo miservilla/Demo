@@ -12,6 +12,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,9 +44,9 @@ public class DominoMain extends Application {
         computerHandLabel.setFont(Font.font(24));
         Label boneyardLabel = new Label("Boneyard");
         boneyardLabel.setFont(Font.font(24));
-        Button rotate = new Button("Rotate");
-        rotate.setFont(Font.font(24));
-        rotate.setStyle("-fx-background-color: lightgray");
+        Button rotateButton = new Button("Rotate");
+        rotateButton.setFont(Font.font(24));
+        rotateButton.setStyle("-fx-background-color: lightgray");
         Button drawCard = new Button("Draw Card");
         drawCard.setFont(Font.font(24));
         drawCard.setStyle("-fx-background-color: lightgray");
@@ -56,9 +57,8 @@ public class DominoMain extends Application {
         gridConstraints(14, 1, bottomTile);
         List<ImageView> computerHandList = new ArrayList<>();
         List<ImageView> boneyardList = new ArrayList<>();
-        HBox buttonGroup = new HBox(rotate, drawCard, quit);
+        HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
         buttonGroup.setSpacing(20);
-
 
         List<ImageView> tiles = new ArrayList<>();
         String[] imageResources = new String[] {
@@ -80,7 +80,6 @@ public class DominoMain extends Application {
             tiles.add(imageView);
         }
 
-        //Assign mouse press handler.
         for (ImageView imageView :
                 tiles) {
             imageView.setOnMousePressed(event -> {
@@ -111,50 +110,51 @@ public class DominoMain extends Application {
             boneyard.add(imageView, i, 0);
         }
 
-        rotate.setOnMouseClicked(event -> {
-            rotate.setStyle("-fx-background-color: crimson");
+        rotateButton.setOnMouseClicked(event -> {
+            rotateButton.setStyle("-fx-background-color: crimson");
             rotating = true;
-
         });
 
 
         humanHand.setOnDragDetected(event -> {
-            System.out.println(rotating);
-            if (rotating) {
-                rotate.setStyle("-fx-background-color: lightgray");
-                System.out.println("I am rotating");
-                humanHand.setRotate(180);
-                rotating = false;
-            }
             Dragboard db = humanHand.startDragAndDrop(TransferMode.COPY_OR_MOVE);
             content.putImage(clickedImage);
             db.setContent(content);
             db.setDragView(clickedImage);
             dragging = true;
             System.out.println(imageString[0]);
-            humanHand.getChildren().remove(clickedImageView);
-
             event.consume();
         });
 
         topTile.setOnMouseEntered(event -> {
 //            System.out.println(topTile.getChildren().get(columnIndex));
 //            System.out.println("colIndex is " + columnIndex);
+            if (rotating) {
+                clickedImageView.setRotate(180);
+                rotateButton.setStyle("-fx-background-color: lightgrey");
+            }
             if (dragging) {
                 topTile.add(clickedImageView, columnIndex, 0);
             }
+            humanHand.getChildren().remove(clickedImageView);
             dragging = false;
-            humanHand.setRotate(0);
+            rotating = false;
         });
 
         bottomTile.setOnMouseEntered(event -> {
 //            System.out.println(bottomTile.getChildren().get(columnIndex));
 //            System.out.println("colIndex is " + columnIndex);
+            if (rotating) {
+                clickedImageView.setRotate(180);
+                rotateButton.setStyle("-fx-background-color: lightgrey");
+            }
+
             if (dragging) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
             }
+            humanHand.getChildren().remove(clickedImageView);
             dragging = false;
-            humanHand.setRotate(0);
+            rotating = false;
         });
 
         drawCard.setOnMousePressed(event -> {
