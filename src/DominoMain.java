@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Integer.parseInt;
+
 public class DominoMain extends Application {
     GridPane humanHand = new GridPane();
     GridPane topTile = new GridPane();
@@ -34,6 +36,10 @@ public class DominoMain extends Application {
     boolean dragging;
     boolean rotating = false;
     int m = 0;
+    int[] topTileArray = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    int[] bottomTileArray = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    int n;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -60,14 +66,16 @@ public class DominoMain extends Application {
         List<ImageView> boneyardList = new ArrayList<>();
         HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
         buttonGroup.setSpacing(20);
+//        fillArray(topTileArray);
+//        fillArray(bottomTileArray);
 
         List<ImageView> tiles = new ArrayList<>();
         String[] imageResources = new String[] {
-                "00.jpg", "10.jpg", "11.jpg", "20.jpg", "21.jpg", "22.jpg",
-                "30.jpg", "31.jpg", "32.jpg", "33.jpg", "40.jpg", "41.jpg",
-                "42.jpg", "43.jpg", "44.jpg", "50.jpg", "51.jpg", "52.jpg",
-                "53.jpg", "54.jpg", "55.jpg", "60.jpg", "61.jpg", "62.jpg",
-                "63.jpg", "64.jpg", "65.jpg", "66.jpg"};
+                "00", "10", "11", "20", "21", "22",
+                "30", "31", "32", "33", "40", "41",
+                "42", "43", "44", "50", "51", "52",
+                "53", "54", "55", "60", "61", "62",
+                "63", "64", "65", "66"};
 
 
         final String[] imageString = {null};
@@ -129,39 +137,55 @@ public class DominoMain extends Application {
             db.setContent(content);
             db.setDragView(clickedImage);
             dragging = true;
-            System.out.println(imageString[0]);
+            n = Integer.parseInt(imageString[0]);
+//            System.out.println(imageString[0]);
             event.consume();
         });
 
         topTile.setOnMouseEntered(event -> {
-//            System.out.println(topTile.getChildren().get(columnIndex));
-//            System.out.println("colIndex is " + columnIndex);
             if (rotating) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
+                n = (n / 10) + ((n % 10) * 10);
+                rotating = false;
             }
-            if (dragging) {
-                topTile.add(clickedImageView, columnIndex, 0);
+            if (topTileArray[columnIndex] == -1){
+                if (dragging) {
+                    topTile.add(clickedImageView, columnIndex, 0);
+                    humanHand.getChildren().remove(clickedImageView);
+                    topTileArray[columnIndex] = n;
+                }
             }
-            humanHand.getChildren().remove(clickedImageView);
+            System.out.print("Top tile ");
+            for (int x :
+                    topTileArray) {
+                System.out.printf(" %d", x);
+            }
+            System.out.println();
             dragging = false;
-            rotating = false;
         });
 
         bottomTile.setOnMouseEntered(event -> {
-//            System.out.println(bottomTile.getChildren().get(columnIndex));
-//            System.out.println("colIndex is " + columnIndex);
             if (rotating) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
+                n = (n / 10) + ((n % 10) * 10);
+                rotating = false;
             }
-
-            if (dragging) {
-                bottomTile.add(clickedImageView, columnIndex, 0);
+            if (bottomTileArray[columnIndex] == -1) {
+                if (dragging) {
+                    bottomTile.add(clickedImageView, columnIndex, 0);
+                    humanHand.getChildren().remove(clickedImageView);
+                    bottomTileArray[columnIndex] = n;
+                }
             }
-            humanHand.getChildren().remove(clickedImageView);
+            System.out.print("Bottom tile ");
+            for (int x :
+                    bottomTileArray) {
+                System.out.printf(" %d", x);
+            }
+            System.out.println();
             dragging = false;
-            rotating = false;
         });
 
         drawCard.setOnMousePressed(event -> {
@@ -263,5 +287,11 @@ public class DominoMain extends Application {
             columnIndex = colIndex;
         });
         grid.add(pane, colIndex, rowIndex);
+    }
+
+    private void fillArray(int[] array) {
+        for (int i = 0; i < 14; i++) {
+            array[i] = -1;
+        }
     }
 }
