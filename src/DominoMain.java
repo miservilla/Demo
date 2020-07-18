@@ -345,7 +345,12 @@ public class DominoMain extends Application {
                     return;
                 }
                 else if (topTileLegal(j, rotateIt(computerHandList.get(i)), bottomTileArray)) {
-
+                    topTileArray[j] = rotateIt(computerHandList.get(i));
+                    ImageView imageView = tileMap.get(computerHandList.remove(i));
+                    imageView.setRotate(180);
+                    topTile.add(imageView, j, 0);
+                    computerHand.getChildren().remove(i);
+                    return;
                 }
                 if (bottomTileLegal(j, computerHandList.get(i), topTileArray)) {
                     bottomTileArray[j] = computerHandList.get(i);
@@ -353,6 +358,15 @@ public class DominoMain extends Application {
                     computerHand.getChildren().remove(i);
                     return;
                 }
+                else if (bottomTileLegal(j, rotateIt(computerHandList.get(i)), topTileArray)) {
+                    bottomTileArray[j] = rotateIt(computerHandList.get(i));
+                    ImageView imageView = tileMap.get(computerHandList.remove(i));
+                    imageView.setRotate(180);
+                    bottomTile.add(imageView, j, 0);
+                    computerHand.getChildren().remove(i);
+                    return;
+                }
+
             }
         }
     }
