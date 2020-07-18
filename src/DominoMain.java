@@ -15,9 +15,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
@@ -35,9 +34,10 @@ public class DominoMain extends Application {
     int columnIndex;
     boolean dragging;
     boolean rotating = false;
+    boolean legal;
     int m = 0;
-    int[] topTileArray = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    int[] bottomTileArray = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
+    int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
     int n;
 
 
@@ -62,14 +62,14 @@ public class DominoMain extends Application {
         quit.setStyle("-fx-background-color: lightgray");
         gridConstraints(14, 1, topTile);
         gridConstraints(14, 1, bottomTile);
-        List<ImageView> computerHandList = new ArrayList<>();
-        List<ImageView> boneyardList = new ArrayList<>();
+        List<Integer> computerHandList = new ArrayList<>();
+        List<Integer> boneyardList = new ArrayList<>();
         HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
         buttonGroup.setSpacing(20);
-//        fillArray(topTileArray);
-//        fillArray(bottomTileArray);
 
+        List<Integer> tileValue = new ArrayList<>();
         List<ImageView> tiles = new ArrayList<>();
+        Map<Integer, ImageView> tileMap = new HashMap<>();
         String[] imageResources = new String[] {
                 "00", "10", "11", "20", "21", "22",
                 "30", "31", "32", "33", "40", "41",
@@ -78,6 +78,7 @@ public class DominoMain extends Application {
                 "63", "64", "65", "66"};
 
 
+        int imageResourceValue;
         final String[] imageString = {null};
         for(final String imageResource : imageResources) {
             imageView = new ImageView(imageResource);
@@ -86,6 +87,9 @@ public class DominoMain extends Application {
             imageView.setOnDragDetected(event -> {
                 imageString[0] = imageResource;
             });
+            imageResourceValue = Integer.parseInt(imageResource);
+            tileValue.add(imageResourceValue);
+            tileMap.put(imageResourceValue, imageView);
             tiles.add(imageView);
         }
 
@@ -98,21 +102,29 @@ public class DominoMain extends Application {
         }
 
         Collections.shuffle(tiles);
+        Collections.shuffle(tileValue);
         for (m = 0; m < 7; m++) {
-            GridPane.setHalignment(tiles.get(0), HPos.CENTER);
-            humanHand.add(tiles.remove(0), m, 0);
+            GridPane.setHalignment(tileMap.get(tileValue.get(0)), HPos.CENTER);
+            humanHand.add(tileMap.get(tileValue.remove(0)), m, 0);
         }
 
         for (int i = 0; i < 7; i++) {
-            computerHandList.add(tiles.remove(0));
+            computerHandList.add(tileValue.remove(0));
             imageView = new ImageView("back.png");
             imageView.setFitWidth(50);
             imageView.setFitHeight(26);
             computerHand.add(imageView, i, 0);
         }
 
+        System.out.println(computerHandList.get(0));
+        topTileArray[6] = computerHandList.get(0);
+        topTile.add(tileMap.get(computerHandList.remove(0)), 6, 0);
+
+        computerHand.getChildren().remove(0);
+
+
         for (int i = 0; i < 14; i++) {
-            boneyardList.add(tiles.remove(0));
+            boneyardList.add(tileValue.remove(0));
             imageView = new ImageView("back.png");
             imageView.setFitWidth(50);
             imageView.setFitHeight(26);
@@ -138,7 +150,6 @@ public class DominoMain extends Application {
             db.setDragView(clickedImage);
             dragging = true;
             n = Integer.parseInt(imageString[0]);
-//            System.out.println(imageString[0]);
             event.consume();
         });
 
@@ -149,7 +160,7 @@ public class DominoMain extends Application {
                 n = (n / 10) + ((n % 10) * 10);
                 rotating = false;
             }
-            if (topTileArray[columnIndex] == -1){
+            if (topTileArray[columnIndex] == 99) {
                 if (dragging) {
                     topTile.add(clickedImageView, columnIndex, 0);
                     humanHand.getChildren().remove(clickedImageView);
@@ -166,18 +177,30 @@ public class DominoMain extends Application {
         });
 
         bottomTile.setOnMouseEntered(event -> {
+            legal = false;
             if (rotating) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
                 n = (n / 10) + ((n % 10) * 10);
                 rotating = false;
             }
-            if (bottomTileArray[columnIndex] == -1) {
-                if (dragging) {
-                    bottomTile.add(clickedImageView, columnIndex, 0);
-                    humanHand.getChildren().remove(clickedImageView);
-                    bottomTileArray[columnIndex] = n;
+            if (columnIndex > 0) {
+                System.out.println("Top tile is " + topTileArray[columnIndex - 1] + ", /10 is ," + topTileArray[columnIndex - 1]/10 + ", %10 is " + topTileArray[columnIndex - 1]%10);
+                System.out.println("Bottom tile is " + n + ", /10 is " + n/10 + ", %10 is " + n%10);
+                if (bottomTileArray[columnIndex] == 99 &&
+                        (topTileArray[columnIndex] / 10  == n % 10) ||
+                        (topTileArray[columnIndex] / 10 == 0 ||
+                                n % 10 == 0) ||
+                        (topTileArray[columnIndex - 1] % 10 == n / 10 ||
+                                (topTileArray[columnIndex - 1] % 10 == 0 ||
+                                        n / 10 == 0))) {
+                    legal = true;
                 }
+            }
+            if (dragging && legal) {
+                bottomTile.add(clickedImageView, columnIndex, 0);
+                humanHand.getChildren().remove(clickedImageView);
+                bottomTileArray[columnIndex] = n;
             }
             System.out.print("Bottom tile ");
             for (int x :
@@ -193,7 +216,7 @@ public class DominoMain extends Application {
             drawCard.setOnMouseReleased(event1 ->
                     drawCard.setStyle("-fx-background-color: lightgray"));
             if (boneyardList.size() > 0) {
-                humanHand.add(boneyardList.remove(0), m++,
+                humanHand.add(tileMap.get(boneyardList.remove(0)), m++,
                         0);
                 boneyard.getChildren().remove(0);
             }
@@ -291,7 +314,7 @@ public class DominoMain extends Application {
 
     private void fillArray(int[] array) {
         for (int i = 0; i < 14; i++) {
-            array[i] = -1;
+            array[i] = 99;
         }
     }
 }
