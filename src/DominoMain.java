@@ -116,7 +116,7 @@ public class DominoMain extends Application {
             computerHand.add(imageView, i, 0);
         }
 
-        System.out.println(computerHandList.get(0));
+//        System.out.println(computerHandList.get(0));
         topTileArray[6] = computerHandList.get(0);
         topTile.add(tileMap.get(computerHandList.remove(0)), 6, 0);
 
@@ -154,62 +154,76 @@ public class DominoMain extends Application {
         });
 
         topTile.setOnMouseEntered(event -> {
-            legal = false;
-            if (rotating) {
+//            legal = false;
+            if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
                 n = (n / 10) + ((n % 10) * 10);
                 rotating = false;
             }
-            if (topTileArray[columnIndex] == 99) {
-                if (dragging) {
-                    topTile.add(clickedImageView, columnIndex, 0);
-                    humanHand.getChildren().remove(clickedImageView);
-                    topTileArray[columnIndex] = n;
-                }
+            legal = topTileLegal(columnIndex, n, bottomTileArray);
+//            if (topTileArray[columnIndex] == 99) {
+//                if ((bottomTileArray[columnIndex] % 10 == n / 10) ||
+//                    (bottomTileArray[columnIndex] % 10 == 0) ||
+//                    (n / 10 == 0 && bottomTileArray[columnIndex] != 99)) {
+//                    legal = true;
+//                }
+//                if (columnIndex < 13) {
+//                    if ((bottomTileArray[columnIndex + 1] / 10 == n % 10) ||
+//                        (bottomTileArray[columnIndex + 1] / 10 == 0) ||
+//                        (n % 10 == 0 && bottomTileArray[columnIndex + 1] != 99)) {
+//                        legal = true;
+//                    }
+//                }
+//            }
+            if (dragging && legal) {
+                topTile.add(clickedImageView, columnIndex, 0);
+                humanHand.getChildren().remove(clickedImageView);
+                topTileArray[columnIndex] = n;
             }
-            System.out.print("Top tile ");
-            for (int x :
-                    topTileArray) {
-                System.out.printf(" %d", x);
-            }
-            System.out.println();
+            //            System.out.print("Top tile ");
+//            for (int x :
+//                    topTileArray) {
+//                System.out.printf(" %d", x);
+//            }
+//            System.out.println();
             dragging = false;
         });
 
         bottomTile.setOnMouseEntered(event -> {
-            legal = false;
-            if (rotating) {
+//            legal = false;
+            if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
                 n = (n / 10) + ((n % 10) * 10);
                 rotating = false;
             }
-            if (bottomTileArray[columnIndex] == 99) {
-                if ((topTileArray[columnIndex] / 10  == n % 10) ||
-                   (topTileArray[columnIndex] / 10 == 0) ||
-                   (n % 10 == 0 && topTileArray[columnIndex] != 99)) {
-                    legal = true;
-                }
-                if (columnIndex > 0) {
-                    if ((topTileArray[columnIndex - 1] % 10 == n / 10) ||
-                       (topTileArray[columnIndex - 1] % 10 == 0) ||
-                       (n / 10 == 0 && topTileArray[columnIndex - 1] != 99)) {
-                       legal = true;
-                    }
-                }
-            }
+            legal = bottomTileLegal(columnIndex, n, topTileArray);
+//            if (bottomTileArray[columnIndex] == 99) {
+//                if ((topTileArray[columnIndex] / 10  == n % 10) ||
+//                    (topTileArray[columnIndex] / 10 == 0) ||
+//                    (n % 10 == 0 && topTileArray[columnIndex] != 99)) {
+//                    legal = true;
+//                }
+//                if (columnIndex > 0) {
+//                    if ((topTileArray[columnIndex - 1] % 10 == n / 10) ||
+//                        (topTileArray[columnIndex - 1] % 10 == 0) ||
+//                        (n / 10 == 0 && topTileArray[columnIndex - 1] != 99)) {
+//                        legal = true;
+//                    }
+//                }
+//            }
             if (dragging && legal) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
                 humanHand.getChildren().remove(clickedImageView);
                 bottomTileArray[columnIndex] = n;
             }
-            System.out.print("Bottom tile ");
-            for (int x :
-                    bottomTileArray) {
-                System.out.printf(" %d", x);
-            }
-            System.out.println();
+//            System.out.print("Bottom tile ");
+//            for (int x :
+//                    bottomTileArray) {
+//                System.out.printf(" %d", x);
+//            }
+//            System.out.println();
             dragging = false;
         });
 
@@ -318,5 +332,39 @@ public class DominoMain extends Application {
         for (int i = 0; i < 14; i++) {
             array[i] = 99;
         }
+    }
+    private boolean topTileLegal(int columnIndex, int n, int[] bottomTileArray) {
+        if (topTileArray[columnIndex] == 99) {
+            if ((bottomTileArray[columnIndex] % 10 == n / 10) ||
+                    (bottomTileArray[columnIndex] % 10 == 0) ||
+                    (n / 10 == 0 && bottomTileArray[columnIndex] != 99)) {
+                return true;
+            }
+            if (columnIndex < 13) {
+                if ((bottomTileArray[columnIndex + 1] / 10 == n % 10) ||
+                        (bottomTileArray[columnIndex + 1] / 10 == 0) ||
+                        (n % 10 == 0 && bottomTileArray[columnIndex + 1] != 99)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean bottomTileLegal(int columnIndex, int n, int[] topTileArray) {
+        if (bottomTileArray[columnIndex] == 99) {
+            if ((topTileArray[columnIndex] / 10  == n % 10) ||
+                    (topTileArray[columnIndex] / 10 == 0) ||
+                    (n % 10 == 0 && topTileArray[columnIndex] != 99)) {
+                return true;
+            }
+            if (columnIndex > 0) {
+                if ((topTileArray[columnIndex - 1] % 10 == n / 10) ||
+                        (topTileArray[columnIndex - 1] % 10 == 0) ||
+                        (n / 10 == 0 && topTileArray[columnIndex - 1] != 99)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
