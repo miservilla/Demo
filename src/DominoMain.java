@@ -39,6 +39,12 @@ public class DominoMain extends Application {
     int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
     int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
     int n;
+    Map<Integer, ImageView> tileMap = new HashMap<>();
+    List<Integer> computerHandList = new ArrayList<>();
+    List<Integer> boneyardList = new ArrayList<>();
+
+
+
 
 
     @Override
@@ -62,14 +68,11 @@ public class DominoMain extends Application {
         quit.setStyle("-fx-background-color: lightgray");
         gridConstraints(14, 1, topTile);
         gridConstraints(14, 1, bottomTile);
-        List<Integer> computerHandList = new ArrayList<>();
-        List<Integer> boneyardList = new ArrayList<>();
         HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
         buttonGroup.setSpacing(20);
 
         List<Integer> tileValue = new ArrayList<>();
         List<ImageView> tiles = new ArrayList<>();
-        Map<Integer, ImageView> tileMap = new HashMap<>();
         String[] imageResources = new String[] {
                 "00", "10", "11", "20", "21", "22",
                 "30", "31", "32", "33", "40", "41",
@@ -108,6 +111,7 @@ public class DominoMain extends Application {
             humanHand.add(tileMap.get(tileValue.remove(0)), m, 0);
         }
 
+        //Building the computer hand.
         for (int i = 0; i < 7; i++) {
             computerHandList.add(tileValue.remove(0));
             imageView = new ImageView("back.png");
@@ -116,10 +120,8 @@ public class DominoMain extends Application {
             computerHand.add(imageView, i, 0);
         }
 
-//        System.out.println(computerHandList.get(0));
         topTileArray[6] = computerHandList.get(0);
         topTile.add(tileMap.get(computerHandList.remove(0)), 6, 0);
-
         computerHand.getChildren().remove(0);
 
 
@@ -154,7 +156,7 @@ public class DominoMain extends Application {
         });
 
         topTile.setOnMouseEntered(event -> {
-//            legal = false;
+
             if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
@@ -162,36 +164,16 @@ public class DominoMain extends Application {
                 rotating = false;
             }
             legal = topTileLegal(columnIndex, n, bottomTileArray);
-//            if (topTileArray[columnIndex] == 99) {
-//                if ((bottomTileArray[columnIndex] % 10 == n / 10) ||
-//                    (bottomTileArray[columnIndex] % 10 == 0) ||
-//                    (n / 10 == 0 && bottomTileArray[columnIndex] != 99)) {
-//                    legal = true;
-//                }
-//                if (columnIndex < 13) {
-//                    if ((bottomTileArray[columnIndex + 1] / 10 == n % 10) ||
-//                        (bottomTileArray[columnIndex + 1] / 10 == 0) ||
-//                        (n % 10 == 0 && bottomTileArray[columnIndex + 1] != 99)) {
-//                        legal = true;
-//                    }
-//                }
-//            }
             if (dragging && legal) {
                 topTile.add(clickedImageView, columnIndex, 0);
                 humanHand.getChildren().remove(clickedImageView);
                 topTileArray[columnIndex] = n;
+                computerPlay(topTileArray, bottomTileArray);
             }
-            //            System.out.print("Top tile ");
-//            for (int x :
-//                    topTileArray) {
-//                System.out.printf(" %d", x);
-//            }
-//            System.out.println();
             dragging = false;
         });
 
         bottomTile.setOnMouseEntered(event -> {
-//            legal = false;
             if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
@@ -199,31 +181,12 @@ public class DominoMain extends Application {
                 rotating = false;
             }
             legal = bottomTileLegal(columnIndex, n, topTileArray);
-//            if (bottomTileArray[columnIndex] == 99) {
-//                if ((topTileArray[columnIndex] / 10  == n % 10) ||
-//                    (topTileArray[columnIndex] / 10 == 0) ||
-//                    (n % 10 == 0 && topTileArray[columnIndex] != 99)) {
-//                    legal = true;
-//                }
-//                if (columnIndex > 0) {
-//                    if ((topTileArray[columnIndex - 1] % 10 == n / 10) ||
-//                        (topTileArray[columnIndex - 1] % 10 == 0) ||
-//                        (n / 10 == 0 && topTileArray[columnIndex - 1] != 99)) {
-//                        legal = true;
-//                    }
-//                }
-//            }
             if (dragging && legal) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
                 humanHand.getChildren().remove(clickedImageView);
                 bottomTileArray[columnIndex] = n;
+                computerPlay(topTileArray, bottomTileArray);
             }
-//            System.out.print("Bottom tile ");
-//            for (int x :
-//                    bottomTileArray) {
-//                System.out.printf(" %d", x);
-//            }
-//            System.out.println();
             dragging = false;
         });
 
@@ -366,5 +329,34 @@ public class DominoMain extends Application {
             }
         }
         return false;
+    }
+    private void computerPlay(int[] topTileArray, int[] bottomTileArray) {
+        System.out.println("computer hand list:");
+        for (int x :
+                computerHandList) {
+            System.out.println(x);
+        }
+        for (int i = 0; i < computerHandList.size(); i++) {
+            for (int j = 0; j < 14; j++) {
+                if (topTileLegal(j, computerHandList.get(i), bottomTileArray)) {
+                    topTileArray[j] = computerHandList.get(i);
+                    topTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
+                    computerHand.getChildren().remove(i);
+                    return;
+                }
+                else if (topTileLegal(j, rotateIt(computerHandList.get(i)), bottomTileArray)) {
+
+                }
+                if (bottomTileLegal(j, computerHandList.get(i), topTileArray)) {
+                    bottomTileArray[j] = computerHandList.get(i);
+                    bottomTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
+                    computerHand.getChildren().remove(i);
+                    return;
+                }
+            }
+        }
+    }
+    private int rotateIt(int z) {
+        return (z / 10) + ((z % 10) * 10);
     }
 }
