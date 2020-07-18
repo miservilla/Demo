@@ -133,7 +133,7 @@ public class DominoMain extends Application {
 
         rotateButton.setOnAction(event -> {
             if (rotateButton.isSelected()) {
-                rotateButton.setStyle("-fx-background-color: crimson");
+                rotateButton.setStyle("-fx-background-color: #dc143c");
                 rotating = true;
             }
             else {
@@ -154,6 +154,7 @@ public class DominoMain extends Application {
         });
 
         topTile.setOnMouseEntered(event -> {
+            legal = false;
             if (rotating) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
@@ -184,17 +185,18 @@ public class DominoMain extends Application {
                 n = (n / 10) + ((n % 10) * 10);
                 rotating = false;
             }
-            if (columnIndex > 0) {
-                System.out.println("Top tile is " + topTileArray[columnIndex - 1] + ", /10 is ," + topTileArray[columnIndex - 1]/10 + ", %10 is " + topTileArray[columnIndex - 1]%10);
-                System.out.println("Bottom tile is " + n + ", /10 is " + n/10 + ", %10 is " + n%10);
-                if (bottomTileArray[columnIndex] == 99 &&
-                        (topTileArray[columnIndex] / 10  == n % 10) ||
-                        (topTileArray[columnIndex] / 10 == 0 ||
-                                n % 10 == 0) ||
-                        (topTileArray[columnIndex - 1] % 10 == n / 10 ||
-                                (topTileArray[columnIndex - 1] % 10 == 0 ||
-                                        n / 10 == 0))) {
+            if (bottomTileArray[columnIndex] == 99) {
+                if ((topTileArray[columnIndex] / 10  == n % 10) ||
+                   (topTileArray[columnIndex] / 10 == 0) ||
+                   (n % 10 == 0 && topTileArray[columnIndex] != 99)) {
                     legal = true;
+                }
+                if (columnIndex > 0) {
+                    if ((topTileArray[columnIndex - 1] % 10 == n / 10) ||
+                       (topTileArray[columnIndex - 1] % 10 == 0) ||
+                       (n / 10 == 0 && topTileArray[columnIndex - 1] != 99)) {
+                       legal = true;
+                    }
                 }
             }
             if (dragging && legal) {
