@@ -331,11 +331,6 @@ public class DominoMain extends Application {
         return false;
     }
     private void computerPlay(int[] topTileArray, int[] bottomTileArray) {
-        System.out.println("computer hand list:");
-        for (int x :
-                computerHandList) {
-            System.out.println(x);
-        }
         for (int i = 0; i < computerHandList.size(); i++) {
             for (int j = 0; j < 14; j++) {
                 if (topTileLegal(j, computerHandList.get(i), bottomTileArray)) {
@@ -369,6 +364,7 @@ public class DominoMain extends Application {
 
             }
         }
+
     }
     private int rotateIt(int z) {
         return (z / 10) + ((z % 10) * 10);
