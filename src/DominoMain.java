@@ -332,41 +332,57 @@ public class DominoMain extends Application {
     }
     private void computerPlay(int[] topTileArray, int[] bottomTileArray) {
         for (int i = 0; i < computerHandList.size(); i++) {
-            for (int j = 0; j < 14; j++) {
-                if (topTileLegal(j, computerHandList.get(i), bottomTileArray)) {
-                    topTileArray[j] = computerHandList.get(i);
-                    topTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
-                    computerHand.getChildren().remove(i);
-                    return;
-                }
-                else if (topTileLegal(j, rotateIt(computerHandList.get(i)), bottomTileArray)) {
-                    topTileArray[j] = rotateIt(computerHandList.get(i));
-                    ImageView imageView = tileMap.get(computerHandList.remove(i));
-                    imageView.setRotate(180);
-                    topTile.add(imageView, j, 0);
-                    computerHand.getChildren().remove(i);
-                    return;
-                }
-                if (bottomTileLegal(j, computerHandList.get(i), topTileArray)) {
-                    bottomTileArray[j] = computerHandList.get(i);
-                    bottomTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
-                    computerHand.getChildren().remove(i);
-                    return;
-                }
-                else if (bottomTileLegal(j, rotateIt(computerHandList.get(i)), topTileArray)) {
-                    bottomTileArray[j] = rotateIt(computerHandList.get(i));
-                    ImageView imageView = tileMap.get(computerHandList.remove(i));
-                    imageView.setRotate(180);
-                    bottomTile.add(imageView, j, 0);
-                    computerHand.getChildren().remove(i);
-                    return;
-                }
-
+           if (computerLegalMove(i, topTileArray, bottomTileArray)) {
+               return;
             }
         }
-
+        while (boneyardList.size() > 0) {
+            computerHandList.add(boneyardList.remove(0));
+            imageView = new ImageView("back.png");
+            imageView.setFitWidth(50);
+            imageView.setFitHeight(26);
+            computerHand.add(imageView, computerHandList.size(), 0);
+            boneyard.getChildren().remove(0);
+            if (computerLegalMove(computerHandList.size() - 1, topTileArray,
+                    bottomTileArray)) {
+                return;
+            }
+        }
     }
     private int rotateIt(int z) {
         return (z / 10) + ((z % 10) * 10);
+    }
+    private boolean computerLegalMove(int i, int[] topTileArray, int[] bottomTileArray){
+        for (int j = 0; j < 14; j++) {
+            if (topTileLegal(j, computerHandList.get(i), bottomTileArray)) {
+                topTileArray[j] = computerHandList.get(i);
+                topTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
+                computerHand.getChildren().remove(i);
+                return true;
+            }
+            else if (topTileLegal(j, rotateIt(computerHandList.get(i)), bottomTileArray)) {
+                topTileArray[j] = rotateIt(computerHandList.get(i));
+                ImageView imageView = tileMap.get(computerHandList.remove(i));
+                imageView.setRotate(180);
+                topTile.add(imageView, j, 0);
+                computerHand.getChildren().remove(i);
+                return true;
+            }
+            else if (bottomTileLegal(j, computerHandList.get(i), topTileArray)) {
+                bottomTileArray[j] = computerHandList.get(i);
+                bottomTile.add(tileMap.get(computerHandList.remove(i)), j, 0);
+                computerHand.getChildren().remove(i);
+                return true;
+            }
+            else if (bottomTileLegal(j, rotateIt(computerHandList.get(i)), topTileArray)) {
+                bottomTileArray[j] = rotateIt(computerHandList.get(i));
+                ImageView imageView = tileMap.get(computerHandList.remove(i));
+                imageView.setRotate(180);
+                bottomTile.add(imageView, j, 0);
+                computerHand.getChildren().remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 }
