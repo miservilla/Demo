@@ -1,3 +1,4 @@
+import com.sun.java.swing.plaf.windows.WindowsTextAreaUI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -36,12 +37,21 @@ public class DominoMain extends Application {
     boolean rotating = false;
     boolean legal;
     int m = 0;
-    int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
-    int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
+    int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
+    int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+            99};
     int n;
+    int o = 0;
     Map<Integer, ImageView> tileMap = new HashMap<>();
+    List<Integer> humanHandList = new ArrayList<>();
     List<Integer> computerHandList = new ArrayList<>();
     List<Integer> boneyardList = new ArrayList<>();
+    AnchorPane root = new AnchorPane();
+
+
+
 
 
 
@@ -49,7 +59,6 @@ public class DominoMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        AnchorPane root = new AnchorPane();
         root.setStyle("-fx-background-color: yellow");
         Label humanHandLabel = new Label("Human Hand");
         humanHandLabel.setFont(Font.font(24));
@@ -66,8 +75,8 @@ public class DominoMain extends Application {
         Button quit = new Button("Quit");
         quit.setFont(Font.font(24));
         quit.setStyle("-fx-background-color: lightgray");
-        gridConstraints(14, 1, topTile);
-        gridConstraints(14, 1, bottomTile);
+        gridConstraints(28, 1, topTile);
+        gridConstraints(28, 1, bottomTile);
         HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
         buttonGroup.setSpacing(20);
 
@@ -108,7 +117,9 @@ public class DominoMain extends Application {
         Collections.shuffle(tileValue);
         for (m = 0; m < 7; m++) {
             GridPane.setHalignment(tileMap.get(tileValue.get(0)), HPos.CENTER);
+            humanHandList.add(tileValue.get(0));
             humanHand.add(tileMap.get(tileValue.remove(0)), m, 0);
+            o++;
         }
 
         //Building the computer hand.
@@ -120,8 +131,8 @@ public class DominoMain extends Application {
             computerHand.add(imageView, i, 0);
         }
 
-        topTileArray[6] = computerHandList.get(0);
-        topTile.add(tileMap.get(computerHandList.remove(0)), 6, 0);
+        topTileArray[13] = computerHandList.get(0);
+        topTile.add(tileMap.get(computerHandList.remove(0)), 13, 0);
         computerHand.getChildren().remove(0);
 
 
@@ -167,8 +178,21 @@ public class DominoMain extends Application {
             if (dragging && legal) {
                 topTile.add(clickedImageView, columnIndex, 0);
                 humanHand.getChildren().remove(clickedImageView);
+                o--;
                 topTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
+                if (o == 0) {
+                    handWins();
+                }
+                else if (computerHandList.size() == 0) {
+                    computerWins();
+                }
+            }
+            if (o == 0) {
+                handWins();
+            }
+            else if (computerHandList.size() == 0) {
+                computerWins();
             }
             dragging = false;
         });
@@ -184,8 +208,15 @@ public class DominoMain extends Application {
             if (dragging && legal) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
                 humanHand.getChildren().remove(clickedImageView);
+                o--;
                 bottomTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
+                if (o == 0) {
+                    handWins();
+                }
+                else if (computerHandList.size() == 0) {
+                    computerWins();
+                }
             }
             dragging = false;
         });
@@ -197,6 +228,7 @@ public class DominoMain extends Application {
             if (boneyardList.size() > 0) {
                 humanHand.add(tileMap.get(boneyardList.remove(0)), m++,
                         0);
+                o++;
                 boneyard.getChildren().remove(0);
             }
         });
@@ -252,7 +284,7 @@ public class DominoMain extends Application {
                 humanHandLabel, computerHand, computerHandLabel, boneyard,
                 boneyardLabel, buttonGroup);
 
-        primaryStage.setScene(new Scene(root, 1100, 410));
+        primaryStage.setScene(new Scene(root, 1600, 410));
         primaryStage.show();
     }
 
@@ -303,7 +335,7 @@ public class DominoMain extends Application {
                     (n / 10 == 0 && bottomTileArray[columnIndex] != 99)) {
                 return true;
             }
-            if (columnIndex < 13) {
+            if (columnIndex < 27) {
                 if ((bottomTileArray[columnIndex + 1] / 10 == n % 10) ||
                         (bottomTileArray[columnIndex + 1] / 10 == 0) ||
                         (n % 10 == 0 && bottomTileArray[columnIndex + 1] != 99)) {
@@ -385,4 +417,30 @@ public class DominoMain extends Application {
         }
         return false;
     }
+    private void computerWins() {
+        Label computerWinsLabel = new Label("Computer Wins!");
+        computerWinsLabel.setFont(Font.font(50));
+        computerWinsLabel.setAlignment(Pos.CENTER);
+        AnchorPane.setLeftAnchor(computerWinsLabel, 0.0);
+        AnchorPane.setRightAnchor(computerWinsLabel, 0.0);
+        computerWinsLabel.setStyle("-fx-background-color: crimson");
+        root.getChildren().add(computerWinsLabel);
+        dragging = false;
+    }
+    private void handWins() {
+        Label humanWinsLabel = new Label("Human Wins!");
+        humanWinsLabel.setFont(Font.font(50));
+        humanWinsLabel.setAlignment(Pos.CENTER);
+        AnchorPane.setLeftAnchor(humanWinsLabel, 0.0);
+        AnchorPane.setRightAnchor(humanWinsLabel, 0.0);
+        humanWinsLabel.setStyle("-fx-background-color: crimson");
+        root.getChildren().add(humanWinsLabel);
+        dragging = false;
+    }
 }
+
+/*TODO 1) Try changing grid pane to something more akin to linked list. 2) Add
+drop sound to moves, and buzz sound for illegal move. 3) Add 2 player option in
+addition to computer player option. 4) Add play new game option to reset board
+and start anew.
+ */
