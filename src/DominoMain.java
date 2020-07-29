@@ -1,4 +1,3 @@
-import com.sun.java.swing.plaf.windows.WindowsTextAreaUI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -14,7 +13,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -43,7 +41,7 @@ public class DominoMain extends Application {
             99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
             99};
     int n;
-    int o = 0;
+    int o;
     Map<Integer, ImageView> tileMap = new HashMap<>();
     List<Integer> humanHandList = new ArrayList<>();
     List<Integer> computerHandList = new ArrayList<>();
@@ -60,9 +58,9 @@ public class DominoMain extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         root.setStyle("-fx-background-color: yellow");
-        Label humanHandLabel = new Label("Human Hand");
+        Label humanHandLabel = new Label();
         humanHandLabel.setFont(Font.font(24));
-        Label computerHandLabel = new Label("Computer Hand");
+        Label computerHandLabel = new Label();
         computerHandLabel.setFont(Font.font(24));
         Label boneyardLabel = new Label("Boneyard");
         boneyardLabel.setFont(Font.font(24));
@@ -119,8 +117,8 @@ public class DominoMain extends Application {
             GridPane.setHalignment(tileMap.get(tileValue.get(0)), HPos.CENTER);
             humanHandList.add(tileValue.get(0));
             humanHand.add(tileMap.get(tileValue.remove(0)), m, 0);
-            o++;
         }
+        humanHandLabel.setText("Human Hand " + getScore(humanHandList));
 
         //Building the computer hand.
         for (int i = 0; i < 7; i++) {
@@ -130,6 +128,7 @@ public class DominoMain extends Application {
             imageView.setFitHeight(26);
             computerHand.add(imageView, i, 0);
         }
+        computerHandLabel.setText("Computer Hand " + getScore(computerHandList));
 
         topTileArray[13] = computerHandList.get(0);
         topTile.add(tileMap.get(computerHandList.remove(0)), 13, 0);
@@ -167,7 +166,7 @@ public class DominoMain extends Application {
         });
 
         topTile.setOnMouseEntered(event -> {
-
+            o = n;
             if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
@@ -177,27 +176,22 @@ public class DominoMain extends Application {
             legal = topTileLegal(columnIndex, n, bottomTileArray);
             if (dragging && legal) {
                 topTile.add(clickedImageView, columnIndex, 0);
+                for (int i = 0; i < humanHandList.size(); i++) {
+                    if (o == humanHandList.get(i)) {
+                        humanHandList.remove(i);
+                    }
+                }
                 humanHand.getChildren().remove(clickedImageView);
-                o--;
                 topTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
-                if (o == 0) {
-                    handWins();
-                }
-                else if (computerHandList.size() == 0) {
-                    computerWins();
-                }
-            }
-            if (o == 0) {
-                handWins();
-            }
-            else if (computerHandList.size() == 0) {
-                computerWins();
+                humanHandLabel.setText("Human Hand " + getScore(humanHandList));
+                computerHandLabel.setText("Computer hand " + getScore(computerHandList));
             }
             dragging = false;
         });
 
         bottomTile.setOnMouseEntered(event -> {
+            o = n;
             if (rotating && clickedImage != null) {
                 clickedImageView.setRotate(180);
                 rotateButton.setStyle("-fx-background-color: lightgrey");
@@ -207,16 +201,16 @@ public class DominoMain extends Application {
             legal = bottomTileLegal(columnIndex, n, topTileArray);
             if (dragging && legal) {
                 bottomTile.add(clickedImageView, columnIndex, 0);
-                humanHand.getChildren().remove(clickedImageView);
-                o--;
+                for (int i = 0; i < humanHandList.size(); i++) {
+                    if (o == humanHandList.get(i)) {
+                        humanHandList.remove(i);
+                    }
+                }
+                    humanHand.getChildren().remove(clickedImageView);
                 bottomTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
-                if (o == 0) {
-                    handWins();
-                }
-                else if (computerHandList.size() == 0) {
-                    computerWins();
-                }
+                humanHandLabel.setText("Human Hand " + getScore(humanHandList));
+                computerHandLabel.setText("Computer hand " + getScore(computerHandList));
             }
             dragging = false;
         });
@@ -226,11 +220,12 @@ public class DominoMain extends Application {
             drawCard.setOnMouseReleased(event1 ->
                     drawCard.setStyle("-fx-background-color: lightgray"));
             if (boneyardList.size() > 0) {
+                humanHandList.add(boneyardList.get(0));
                 humanHand.add(tileMap.get(boneyardList.remove(0)), m++,
                         0);
-                o++;
                 boneyard.getChildren().remove(0);
             }
+            humanHandLabel.setText("Human Hand " + getScore(humanHandList));
         });
 
         quit.setOnMouseClicked(event -> Platform.exit());
@@ -380,6 +375,9 @@ public class DominoMain extends Application {
                 return;
             }
         }
+//        if (boneyardList.size() == 0) {
+//            add up tokens, player with least amount wins.
+//        }
     }
     private int rotateIt(int z) {
         return (z / 10) + ((z % 10) * 10);
@@ -427,7 +425,7 @@ public class DominoMain extends Application {
         root.getChildren().add(computerWinsLabel);
         dragging = false;
     }
-    private void handWins() {
+    private void humanHandWins() {
         Label humanWinsLabel = new Label("Human Wins!");
         humanWinsLabel.setFont(Font.font(50));
         humanWinsLabel.setAlignment(Pos.CENTER);
@@ -436,6 +434,15 @@ public class DominoMain extends Application {
         humanWinsLabel.setStyle("-fx-background-color: crimson");
         root.getChildren().add(humanWinsLabel);
         dragging = false;
+    }
+
+    private int getScore(List<Integer> list) {
+        int value = 0;
+        for (int tokenValue :
+                list) {
+            value += (tokenValue / 10) + (tokenValue % 10);
+        }
+        return value;
     }
 }
 
