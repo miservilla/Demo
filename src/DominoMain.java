@@ -12,6 +12,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -128,7 +129,8 @@ public class DominoMain extends Application {
             imageView.setFitHeight(26);
             computerHand.add(imageView, i, 0);
         }
-        computerHandLabel.setText("Computer Hand " + getScore(computerHandList));
+        computerHandLabel.setText("Computer Hand "
+                + getScore(computerHandList));
 
         topTileArray[13] = computerHandList.get(0);
         topTile.add(tileMap.get(computerHandList.remove(0)), 13, 0);
@@ -185,7 +187,8 @@ public class DominoMain extends Application {
                 topTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
                 humanHandLabel.setText("Human Hand " + getScore(humanHandList));
-                computerHandLabel.setText("Computer hand " + getScore(computerHandList));
+                computerHandLabel.setText("Computer Hand "
+                        + getScore(computerHandList));
             }
             dragging = false;
         });
@@ -210,7 +213,8 @@ public class DominoMain extends Application {
                 bottomTileArray[columnIndex] = n;
                 computerPlay(topTileArray, bottomTileArray);
                 humanHandLabel.setText("Human Hand " + getScore(humanHandList));
-                computerHandLabel.setText("Computer hand " + getScore(computerHandList));
+                computerHandLabel.setText("Computer Hand "
+                        + getScore(computerHandList));
             }
             dragging = false;
         });
@@ -226,6 +230,9 @@ public class DominoMain extends Application {
                 boneyard.getChildren().remove(0);
             }
             humanHandLabel.setText("Human Hand " + getScore(humanHandList));
+            if (boneyardList.size() == 0) {
+                checkWin(getScore(computerHandList), getScore(humanHandList));
+            }
         });
 
         quit.setOnMouseClicked(event -> Platform.exit());
@@ -375,9 +382,9 @@ public class DominoMain extends Application {
                 return;
             }
         }
-//        if (boneyardList.size() == 0) {
-//            add up tokens, player with least amount wins.
-//        }
+        if (boneyardList.size() == 0) {
+            checkWin(getScore(computerHandList), getScore(humanHandList));
+        }
     }
     private int rotateIt(int z) {
         return (z / 10) + ((z % 10) * 10);
@@ -418,21 +425,29 @@ public class DominoMain extends Application {
     private void computerWins() {
         Label computerWinsLabel = new Label("Computer Wins!");
         computerWinsLabel.setFont(Font.font(50));
+        computerWinsLabel.setTextFill(Color.RED);
         computerWinsLabel.setAlignment(Pos.CENTER);
         AnchorPane.setLeftAnchor(computerWinsLabel, 0.0);
         AnchorPane.setRightAnchor(computerWinsLabel, 0.0);
-        computerWinsLabel.setStyle("-fx-background-color: crimson");
         root.getChildren().add(computerWinsLabel);
+        for (int x :
+                computerHandList) {
+            System.out.printf("%d ", x);
+        }
         dragging = false;
     }
     private void humanHandWins() {
         Label humanWinsLabel = new Label("Human Wins!");
         humanWinsLabel.setFont(Font.font(50));
+        humanWinsLabel.setTextFill(Color.RED);
         humanWinsLabel.setAlignment(Pos.CENTER);
         AnchorPane.setLeftAnchor(humanWinsLabel, 0.0);
         AnchorPane.setRightAnchor(humanWinsLabel, 0.0);
-        humanWinsLabel.setStyle("-fx-background-color: crimson");
         root.getChildren().add(humanWinsLabel);
+        for (int x :
+                computerHandList) {
+            System.out.printf("%d ", x);
+        }
         dragging = false;
     }
 
@@ -443,6 +458,12 @@ public class DominoMain extends Application {
             value += (tokenValue / 10) + (tokenValue % 10);
         }
         return value;
+    }
+    private void checkWin(int computerScore, int humanScore) {
+        if (computerScore < humanScore) {
+            computerWins();
+        }
+        else humanHandWins();
     }
 }
 
