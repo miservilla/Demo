@@ -32,23 +32,22 @@ public class DominoMain extends Application {
     ImageView clickedImageView;
     Image clickedImage;
     int columnIndex;
-    boolean dragging;
-    boolean rotating = false;
-    boolean legal;
-    int m = 0;
+    boolean dragging;//State of mouse movement across the board.
+    boolean rotating = false;//State of rotation of tile.
+    boolean legal;//State of move of tile, legal move or not.
+    int m = 0;//humanHand tile count.
     int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
             99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
     int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
             99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
             99};
-    int n;
-    int o;
-    Map<Integer, ImageView> tileMap = new HashMap<>();
-    List<Integer> humanHandList = new ArrayList<>();
-    List<Integer> computerHandList = new ArrayList<>();
-    List<Integer> boneyardList = new ArrayList<>();
+    int n;//Tile value.
+    int o;//Tmp tile value (used if tile is rotated).
+    Map<Integer, ImageView> tileMap = new HashMap<>();//Key = tile value, Value = tile image view.
+    List<Integer> humanHandList = new ArrayList<>();//List holding human tile values.
+    List<Integer> computerHandList = new ArrayList<>();//List holding computer tile values.
+    List<Integer> boneyardList = new ArrayList<>();//List holding boneyard tile values.
     AnchorPane root = new AnchorPane();
-
 
 
 
@@ -58,6 +57,21 @@ public class DominoMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        root = new AnchorPane();
+        tileMap = new HashMap<>();
+        humanHandList = new ArrayList<>();
+        computerHandList = new ArrayList<>();
+        boneyardList = new ArrayList<>();
+        humanHand = new GridPane();
+        topTile = new GridPane();
+        bottomTile = new GridPane();
+        computerHand = new GridPane();
+        boneyard = new GridPane();
+
+
+
+//        root.getChildren().removeAll();
         root.setStyle("-fx-background-color: yellow");
         Label humanHandLabel = new Label();
         humanHandLabel.setFont(Font.font(24));
@@ -73,11 +87,22 @@ public class DominoMain extends Application {
         drawCard.setStyle("-fx-background-color: lightgray");
         Button quit = new Button("Quit");
         quit.setFont(Font.font(24));
+        Button newGame = new Button("New Game");
+        newGame.setFont(Font.font(24));
+        newGame.setStyle(("-fx-background-color: lightgrey"));
         quit.setStyle("-fx-background-color: lightgray");
         gridConstraints(28, 1, topTile);
         gridConstraints(28, 1, bottomTile);
-        HBox buttonGroup = new HBox(rotateButton, drawCard, quit);
+        HBox buttonGroup = new HBox(rotateButton, drawCard, quit, newGame);
         buttonGroup.setSpacing(20);
+
+        newGame.setOnMouseClicked(event -> {
+            try {
+                start(primaryStage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         List<Integer> tileValue = new ArrayList<>();
         List<ImageView> tiles = new ArrayList<>();
@@ -185,6 +210,9 @@ public class DominoMain extends Application {
                 }
                 humanHand.getChildren().remove(clickedImageView);
                 topTileArray[columnIndex] = n;
+                if (boneyardList.size() == 0) {
+                    checkWin(getScore(computerHandList), getScore(humanHandList));
+                }
                 computerPlay(topTileArray, bottomTileArray);
                 humanHandLabel.setText("Human Hand " + getScore(humanHandList));
                 computerHandLabel.setText("Computer Hand "
@@ -211,6 +239,9 @@ public class DominoMain extends Application {
                 }
                     humanHand.getChildren().remove(clickedImageView);
                 bottomTileArray[columnIndex] = n;
+                if (boneyardList.size() == 0) {
+                    checkWin(getScore(computerHandList), getScore(humanHandList));
+                }
                 computerPlay(topTileArray, bottomTileArray);
                 humanHandLabel.setText("Human Hand " + getScore(humanHandList));
                 computerHandLabel.setText("Computer Hand "
@@ -230,9 +261,9 @@ public class DominoMain extends Application {
                 boneyard.getChildren().remove(0);
             }
             humanHandLabel.setText("Human Hand " + getScore(humanHandList));
-            if (boneyardList.size() == 0) {
-                checkWin(getScore(computerHandList), getScore(humanHandList));
-            }
+//            if (boneyardList.size() == 0) {
+//                checkWin(getScore(computerHandList), getScore(humanHandList));
+//            }
         });
 
         quit.setOnMouseClicked(event -> Platform.exit());
@@ -330,6 +361,7 @@ public class DominoMain extends Application {
             array[i] = 99;
         }
     }
+
     private boolean topTileLegal(int columnIndex, int n, int[] bottomTileArray) {
         if (topTileArray[columnIndex] == 99) {
             if ((bottomTileArray[columnIndex] % 10 == n / 10) ||
@@ -382,9 +414,7 @@ public class DominoMain extends Application {
                 return;
             }
         }
-        if (boneyardList.size() == 0) {
-            checkWin(getScore(computerHandList), getScore(humanHandList));
-        }
+        checkWin(getScore(computerHandList), getScore(humanHandList));
     }
     private int rotateIt(int z) {
         return (z / 10) + ((z % 10) * 10);
