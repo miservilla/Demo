@@ -21,12 +21,11 @@ import java.util.*;
 import static java.lang.Integer.parseInt;
 
 public class DominoMain extends Application {
-    GridPane humanHand = new GridPane();
-    GridPane topTile = new GridPane();
-    GridPane bottomTile = new GridPane();
-    GridPane computerHand = new GridPane();
-    GridPane boneyard = new GridPane();
-
+   private static GridPane humanHand;
+    GridPane topTile;
+    GridPane bottomTile;
+    GridPane computerHand;
+    GridPane boneyard;
     ClipboardContent content = new ClipboardContent();
     ImageView imageView;
     ImageView clickedImageView;
@@ -36,18 +35,15 @@ public class DominoMain extends Application {
     boolean rotating = false;//State of rotation of tile.
     boolean legal;//State of move of tile, legal move or not.
     int m = 0;//humanHand tile count.
-    int[] topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
-    int[] bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-            99};
+    int[] topTileArray;
+    int[] bottomTileArray;
     int n;//Tile value.
     int o;//Tmp tile value (used if tile is rotated).
-    Map<Integer, ImageView> tileMap = new HashMap<>();//Key = tile value, Value = tile image view.
-    List<Integer> humanHandList = new ArrayList<>();//List holding human tile values.
-    List<Integer> computerHandList = new ArrayList<>();//List holding computer tile values.
-    List<Integer> boneyardList = new ArrayList<>();//List holding boneyard tile values.
-    AnchorPane root = new AnchorPane();
+    Map<Integer, ImageView> tileMap;//Key = tile value, Value = tile image view.
+    List<Integer> humanHandList;//List holding human tile values.
+    List<Integer> computerHandList;//List holding computer tile values.
+    List<Integer> boneyardList;//List holding boneyard tile values.
+    AnchorPane root;
 
 
 
@@ -68,6 +64,12 @@ public class DominoMain extends Application {
         bottomTile = new GridPane();
         computerHand = new GridPane();
         boneyard = new GridPane();
+        topTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+                99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+                99};
+        bottomTileArray = new int[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+                99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+                99, 99};
 
 
 
